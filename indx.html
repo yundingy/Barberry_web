@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Color theme for statusbar (Android only) -->
+    <meta name="theme-color" content="#2196f3">
+    <!-- Your app title -->
+    <title>My App</title>
+    <!-- Path to Framework7 Library Bundle CSS -->
+    <link rel="stylesheet" href="plugins/framework7/css/framework7.bundle.min.css">
+    <!-- Path to your custom app styles-->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<!-- App root element -->
+<div id="app">
+
+    <!-- Your main view, should have "view-main" class -->
+    <div class="view view-main">
+        <!-- Initial Page, "data-name" contains page name -->
+        <div data-name="home" class="page">
+
+            <!-- Top Navbar -->
+            <div class="navbar">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner sliding">
+                    <div class="title">总览</div>
+                </div>
+            </div>
+
+            <!-- Scrollable page content -->
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">本月已花费</div>
+                    <div class="card-content card-content-padding money">
+                        ￥47478546
+                    </div>
+                    <div class="card-footer">
+                        <a href="/detail/">详情</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">本月剩余</div>
+                    <div class="card-content card-content-padding money">
+                        ￥47478546
+                    </div>
+                    <div class="card-footer">
+                        <a href="/detail/">填写本月收入</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">待我审批</div>
+                    <div class="card-content card-content-padding money">
+                        2 条
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">我的本月提交</div>
+                    <div class="card-content card-content-padding money">
+                        2 条
+                    </div>
+                </div>
+            </div>
+
+            <div class="fab fab-extended fab-center-bottom color-red">
+                <a href="#">
+                    <div class="fab-text">申请</div>
+                </a>
+            </div>
+            <!-- Bottom Toolbar -->
+            <!--<div class="toolbar toolbar-bottom">
+                <div class="toolbar-inner">
+                    &lt;!&ndash; Toolbar links &ndash;&gt;
+                    <a href="#" class="link">Link 1</a>
+                    <a href="#" class="link">Link 2</a>
+                </div>
+            </div>-->
+        </div>
+    </div>
+</div>
+<!-- Path to Framework7 Library Bundle JS-->
+<script type="text/javascript" src="plugins/framework7/js/framework7.bundle.min.js"></script>
+<!-- Path to your app js-->
+<script type="text/javascript" src="config/routes.js"></script>
+<script type="text/javascript" src="app.js"></script>
+</body>
+</html>
