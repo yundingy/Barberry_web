@@ -1,0 +1,155 @@
+<template>
+    <div class="page">
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">支出申请</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="list">
+                <form id="form">
+                    <ul>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">金额</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="amount">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">用途</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="uses">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">支出途径</div>
+                                <div class="item-input-wrap">
+                                    <select name="spendingPath">
+                                        <option>零花钱</option>
+                                        <option>生活费</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">支出时间</div>
+                                <div class="item-input-wrap">
+                                    <input name="spendingTime" type="text" readonly="readonly" id="spendingTime"/>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">分期数</div>
+                                <div class="item-input-wrap">
+                                    <input type="number" name="installment" id="installment" value="1">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">备注</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="memo">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </form>
+                <div style="width: 90%;margin: auto;margin-top: 15px">
+                    <button class=" button button-fill color-green" @click="submit">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                elSpendingTime: null
+            }
+        },
+        methods: {
+            submit() {
+                const _this = this
+                const values = $('#form').serializeObject()
+                if (!values.amount) {
+                    app.methods.toast('金额不能为空',false)
+                    return;
+                }
+
+                if (!values.uses) {
+                    app.methods.toast('用途不能为空',false)
+                    return;
+                }
+
+                if (!values.installment||values.installment==0) {
+                    app.methods.toast('分期最少为1',false)
+                    return;
+                }
+
+                app.dialog.progress('正在提交');
+                ajax.post('application/save',values).then(res => {
+                    app.dialog.close();
+                    if (res.code === 200) {
+                        app.dialog.create({
+                            title: '提示',
+                            text: '申请成功，是否继续申请？',
+                            buttons: [
+                                {
+                                    text: '返回首页',
+                                    onClick: function () {
+                                        _this.$router.back()
+                                    }
+                                },
+                                {
+                                    text: '继续申请',
+                                    color: 'green',
+                                    onClick: function () {
+                                        $('#form')[0].reset();
+                                        $('#installment').val('1');
+                                        _this.elSpendingTime.setValue([new Date()])
+                                    }
+                                }
+                            ]
+                        }).open();
+                    }
+                })
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.elSpendingTime = app.calendar.create({
+                    inputEl: '#spendingTime',
+                    dateFormat: 'yyyy-mm-dd'
+                })
+                this.elSpendingTime.setValue([new Date()]);
+            }
+        }
+    }
+</script>

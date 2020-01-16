@@ -1,0 +1,79 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">我的审批</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="list media-list">
+                <ul id="list">
+                    {{#each list}}
+                    <li>
+                        <a href="/approveDetail?id={{id}}" class="item-link item-content">
+                            <div class="item-inner">
+                                <div class="item-title-row">
+                                    <div class="item-title">
+                                        <div style="font-size: 24px;width: 100px;display: inline-block">￥{{amount}} &nbsp;&nbsp;</div>
+                                        {{#js_if "this.approvalStatus == 0"}}
+                                        <span class="badge color-orange">待审批</span>
+                                        {{/js_if}}
+                                        {{#js_if "this.approvalStatus == 1"}}
+                                        <span class="badge color-green">已通过</span>
+                                        {{/js_if}}
+                                        {{#js_if "this.approvalStatus == 2"}}
+                                        <span class="badge color-red">已拒绝</span>
+                                        {{/js_if}}
+                                    </div>
+                                    <div class="item-after">{{js "dayjs(this.createTime).format('YYYY-MM-DD HH:mm')"}}</div>
+                                </div>
+                                <div class="item-subtitle">用途：{{uses}}</div>
+                                <div class="item-text">支出途径：{{spendingPath}}</div>
+                            </div>
+                        </a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                page: 0,
+                list: []
+            }
+        },
+        methods: {
+            fetchList() {
+                app.dialog.preloader('载入中...');
+                ajax.post('application/list',{current: this.page}).then(res => {
+                    app.dialog.close();
+                    this.$setState({
+                        list: this.list.concat(res.data.list)
+                    })
+                    this.page = res.pageNum + 1;
+                })
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.fetchList()
+            },
+            pageAfterOut: function () {
+                // page has left the view
+            }
+        }
+    }
+</script>

@@ -1,0 +1,119 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">新增收入</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="list">
+                <form id="form">
+                    <ul>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">收入时间</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="earnTime" id="earnTime">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">金额</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="amount">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <!-- "item-floating-label" class on item title -->
+                                <div class="item-title item-floating-label">来源</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="sources" id="sources" value="工资">
+                                    <span class="input-clear-button"></span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </form>
+                <div style="width: 90%;margin: auto;margin-top: 15px">
+                    <button class=" button button-fill color-green" @click="submit">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                elEarnTime: null
+            }
+        },
+        methods: {
+            submit() {
+                const _this = this
+                const values = $('#form').serializeObject()
+                if (!values.amount) {
+                    app.methods.toast('金额不能为空',false)
+                    return;
+                }
+
+                if (!values.sources) {
+                    app.methods.toast('来源不能为空',false)
+                    return;
+                }
+                app.dialog.progress('正在提交');
+                ajax.post('/income/save',values).then(res => {
+                    app.dialog.close();
+                    if (res.code === 200) {
+                        app.dialog.create({
+                            title: '提示',
+                            text: '新增成功，是否继续新增？',
+                            buttons: [
+                                {
+                                    text: '返回首页',
+                                    onClick: function () {
+                                        _this.$router.back()
+                                    }
+                                },
+                                {
+                                    text: '继续新增',
+                                    color: 'green',
+                                    onClick: function () {
+                                        $('#form')[0].reset();
+                                        $('#sources').val('工资');
+                                        _this.elEarnTime.setValue([new Date()])
+                                    }
+                                }
+                            ]
+                        }).open();
+                    }
+                })
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.elEarnTime = app.calendar.create({
+                    inputEl: '#earnTime',
+                    dateFormat: 'yyyy-mm-dd'
+                })
+                this.elEarnTime.setValue([new Date()])
+            }
+        }
+    }
+</script>

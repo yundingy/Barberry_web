@@ -1,0 +1,130 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">支出审批</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="block">
+                <div class="card">
+                    <div class="card-header amount">￥{{item.amount}}</div>
+                    <div class="card-content card-content-padding">
+                        <div class="row">
+                            <div class="col-30">申请时间：</div>
+                            <div class="col-70">{{js "dayjs(this.item.createTime).format('YYYY-MM-DD HH:mm')"}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">用途：</div>
+                            <div class="col-70">{{item.uses}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">支出途径：</div>
+                            <div class="col-70">{{item.spendingPath}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">支出时间：</div>
+                            <div class="col-70">{{js "dayjs(this.item.spendingTime).format('YYYY-MM-DD HH:mm')"}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">分期数：</div>
+                            <div class="col-70">{{item.installment}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">审批状态：</div>
+                            <div class="col-70">
+                                {{#js_if "this.item.approvalStatus == 0"}}
+                                <span>待审批</span>
+                                {{/js_if}}
+                                {{#js_if "this.item.approvalStatus == 1"}}
+                                <span style="color: green">已同意</span>
+                                {{/js_if}}
+                                {{#js_if "this.item.approvalStatus == 2"}}
+                                <span style="color: red">已拒绝</span>
+                                {{/js_if}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">备注：</div>
+                            <div class="col-70">{{item.memo}}</div>
+                        </div>
+                    </div>
+                    {{#js_if "this.item.approvalStatus == 0"}}
+                    <div class="card-footer">
+                        <div class="row" style="width: 100%">
+                            <button class="col-50 button button-fill color-red" @click="approve(2)">拒绝</button>
+                            <button class="col-50 button button-fill color-green" @click="approve(1)">同意</button>
+                        </div>
+                    </div>
+                    {{/js_if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                id: '',
+                item: {}
+            }
+        },
+        methods: {
+            fetchDetail() {
+                app.dialog.preloader('载入中...')
+                ajax.post('/application/detail',{id: this.id}).then(res => {
+                    app.dialog.close()
+                    this.$setState({
+                        item: res.data
+                    })
+                })
+            },
+            approve(e) {
+                const _this = this
+                const text = e == 1 ? '同意' : '拒绝';
+                app.dialog.confirm('', '确定' + text + '吗？', function () {
+                    app.dialog.progress('正在提交');
+                    ajax.post('/application/update', {approvalStatus: e, id: _this.id}).then(res => {
+                        app.dialog.close();
+                        if (res.code === 200) {
+                            app.dialog.alert('','提交成功', () => {
+                                _this.$router.back()
+                            })
+                        }
+                    })
+                });
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.$setState({
+                    id: this.$route.query.id
+                })
+                this.fetchDetail()
+            },
+            pageAfterOut: function () {
+                // page has left the view
+            },
+        }
+    }
+</script>
+
+<style>
+    .amount{
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .row{
+        margin-bottom: 10px;
+    }
+</style>
