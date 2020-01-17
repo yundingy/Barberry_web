@@ -1,0 +1,174 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">花费查询</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="card" id="searchBar">
+                <div class="card-header">条件设置</div>
+                <div class="card-content card-content-padding">
+                    <div class="list">
+                        <ul>
+                            <li class="item-content item-input">
+                                <div class="item-media">支出人</div>
+                                <div class="item-inner">
+                                    <div class="item-input-wrap input-dropdown-wrap">
+                                        <select id="role">
+                                            <option value=" ">全部</option>
+                                            <option value="1">老公</option>
+                                            <option value="0">老婆</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="item-content item-input">
+                                <div class="item-media">支出时间</div>
+                                <div class="item-inner">
+                                    <div class="item-input-wrap">
+                                        <select id="year" style="width: 50px;display: inline-block">
+                                            <option value="2020">2020</option>
+                                            <option value="2021">2021</option>
+                                            <option value="2022">2022</option>
+                                            <option value="2020">2023</option>
+                                            <option value="2020">2024</option>
+                                        </select>
+                                        年
+                                        <select id="month" style="width: 30px;display: inline-block;margin-left: 20px">
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select>
+                                        月
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="item-content item-input">
+                                <div class="item-inner">
+                                    <button class=" button button-fill color-green" @click="fetchList">查询</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="totalSpend">
+                <div class="card-content card-content-padding" style="font-size: 18px">
+                    总计花费：￥{{amount}}<div style="float: right">
+                    <a href="/monthChart?year={{query.year}}&month={{query.month}}&role={{query.role}}">
+                        <i class="fa fa-pie-chart" style="color: blue"></i>
+                    </a>
+                </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-content card-content-padding">
+                    <div class="list media-list">
+                        <ul id="list">
+                            {{#js_if "this.list.length == 0"}}
+                            <li>
+                                <div style="text-align: center;width: 100%">
+                                    无查询结果
+                                </div>
+                            </li>
+                            {{/js_if}}
+                            {{#each list}}
+                            <li>
+                                <a href="/expenditureDetail?id={{ID}}" class="item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title">
+                                                <div style="font-size: 24px;width: 100px;display: inline-block">￥{{AMOUNT}}</div>
+                                                {{#js_if "this.TOTAL_INSTALLMENT > 1"}}
+                                                <span class="badge color-orange">{{INSTALLMENT}}/{{TOTAL_INSTALLMENT}}</span>
+                                                {{/js_if}}
+                                            </div>
+                                            <div class="item-after">{{js "dayjs(this.SPENDING_TIME).format('YYYY-MM-DD')"}}</div>
+                                        </div>
+                                        <div class="item-subtitle">用途：{{USES}}</div>
+                                        <div class="item-text">支出途径：{{SPENDING_PATH}}</div>
+                                    </div>
+                                </a>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style>
+    .item-media{
+        width: 80px;
+    }
+    #list{
+        overflow-y: auto;
+    }
+</style>
+
+<script>
+    return {
+        data: function () {
+            return {
+                statistics: {},
+                list: [],
+                amount: 0,
+                query: {
+                    year: '',
+                    month: '',
+                    role: ''
+                }
+            }
+        },
+        methods: {
+            fetchList() {
+                app.dialog.progress('载入中...');
+                const data = {
+                    year: $('#year').val(),
+                    month: $('#month').val(),
+                    role: $('#role').val(),
+                }
+                ajax.post('/bill/getListByDate', data).then(res => {
+                    app.dialog.close()
+                    this.$setState({
+                        list: res.data,
+                        query: data
+                    })
+                    let count = 0;
+                    res.data.forEach(o => {
+                        count += o.AMOUNT
+                    })
+                    this.$setState({
+                        amount: count
+                    })
+                });
+            }
+        },
+        on: {
+            pageMounted: function () {
+                this.fetchList()
+                $('#list').css('max-height',$('.page-current').height() - $('#searchBar').height() - $('.navbar').height() -$('#totalSpend').height() - 50 + 'px');
+            }
+        }
+    }
+</script>

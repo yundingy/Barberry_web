@@ -10,7 +10,7 @@
                         <span class="if-not-md">返回</span>
                     </a>
                 </div>
-                <div class="title">我的审批</div>
+                <div class="title">我的申请</div>
             </div>
         </div>
         <div class="page-content">
@@ -18,7 +18,7 @@
                 <ul id="list">
                     {{#each list}}
                     <li>
-                        <a href="/approveDetail?id={{id}}" class="item-link item-content">
+                        <a href="/myApplyDetail?id={{id}}" class="item-link item-content">
                             <div class="item-inner">
                                 <div class="item-title-row">
                                     <div class="item-title">
@@ -58,8 +58,7 @@
         methods: {
             fetchList() {
                 app.dialog.preloader('载入中...');
-                ajax.post('application/list',{current: this.page}).then(res => {
-                    console.log(res)
+                ajax.post('application/list',{current: this.page, role: 'my'}).then(res => {
                     app.dialog.close();
                     this.$setState({
                         list: this.list.concat(res.data.list)
@@ -70,9 +69,6 @@
         },
         on: {
             pageBeforeIn: function () {
-                this.$setState({
-                    list: []
-                })
                 this.fetchList()
             },
             pageAfterOut: function () {

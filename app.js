@@ -11,40 +11,55 @@ const app = new Framework7({
     },
     routes: routes,
     methods: {
-      toast(message, status) {
-          if (status === true) {
-              app.toast.create({
-                  icon: '<i class="fa fa-5x fa-check"></i>',
-                  text: message,
-                  position: 'center',
-                  closeTimeout: 2000,
-              }).open();
-          }else if (status === false) {
-              app.toast.create({
-                  icon: '<i class="fa fa-5x fa-close"></i>',
-                  text: message,
-                  position: 'center',
-                  closeTimeout: 2000,
-              }).open();
-          }else{
-              app.toast.create({
-                  text: message,
-                  position: 'center',
-                  closeTimeout: 2000,
-              }).open();
-          }
-      },
-      alert(status, message) {
+        toast(message, status) {
+            if (status === true) {
+                app.toast.create({
+                    icon: '<i class="fa fa-5x fa-check"></i>',
+                    text: message,
+                    position: 'center',
+                    closeTimeout: 2000,
+                }).open();
+            } else if (status === false) {
+                app.toast.create({
+                    icon: '<i class="fa fa-5x fa-close"></i>',
+                    text: message,
+                    position: 'center',
+                    closeTimeout: 2000,
+                }).open();
+            } else {
+                app.toast.create({
+                    text: message,
+                    position: 'center',
+                    closeTimeout: 2000,
+                }).open();
+            }
+        },
+        alert(status, message) {
 
-      }
+        },
+        goBack() {
+            if (this.views.current.router.history.length == 2) {
+                app.dialog.confirm('','退出程序吗？',()=>{
+                    plus.webview.currentWebview().close()
+                })
+            }else{
+                this.views.current.router.back();
+            }
+        }
     },
     on: {
-        init: function(e) {
+        init: function (e) {
             this.views.create('.view-main');
             if (!localStorage.getItem('role')) {
                 this.views.main.router.navigate('/login');
-            }else{
+            } else {
                 this.views.main.router.navigate('/index');
+            }
+
+            if (window.plus) {
+                plusReady();
+            } else {
+                document.addEventListener("plusready", plusReady, false);
             }
         },
         pageInit: function (page) {
@@ -52,6 +67,12 @@ const app = new Framework7({
         }
     }
 });
+
+function plusReady() {
+    plus.key.addEventListener('backbutton', function () {
+        app.methods.goBack()
+    });
+}
 
 const ajax = axios.create({
     baseURL: 'http://47.240.38.193:32616/api',
@@ -74,13 +95,13 @@ ajax.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
-$.fn.serializeObject = function() {
+$.fn.serializeObject = function () {
     var o = {};
     var a = this.serializeArray();
-    $.each(a, function() {
+    $.each(a, function () {
         if (o[this.name]) {
             if (!o[this.name].push) {
-                o[this.name] = [ o[this.name] ];
+                o[this.name] = [o[this.name]];
             }
             o[this.name].push(this.value || '');
         } else {
@@ -89,4 +110,3 @@ $.fn.serializeObject = function() {
     });
     return o;
 }
-

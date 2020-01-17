@@ -1,0 +1,221 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">统计图</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">支出类别统计</div>
+                <div class="card-content card-content-padding">
+                    <canvas id="chart1" height="300px"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">年统计</div>
+                <div class="card-content card-content-padding">
+                    <canvas id="chart2" height="200px"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">月统计</div>
+                <div class="card-content card-content-padding">
+                    <canvas id="chart3" height="200px"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                statistics: {}
+            }
+        },
+        methods: {
+            stats(data) {
+                app.dialog.progress('载入中...');
+                ajax.post('/bill/stats', data).then(res => {
+                    app.dialog.close();
+                    this.buildUses(res.data.uses)
+                    this.buildYear(res.data.year)
+                    this.buildMonth(res.data.month)
+                });
+            },
+            buildUses(data) {
+                let datas = [];
+                let labels = [];
+                data.forEach(o => {
+                    datas.push(o.AMOUNT);
+                    labels.push(o.USES);
+                })
+                new Chart(document.getElementById('chart1'), {
+                    type: 'pie',
+                    data: {
+                        datasets: [{
+                            data: datas,
+                            backgroundColor: colors,
+                        }],
+                        labels: labels,
+                    }
+                });
+            },
+            buildYear(data) {
+                let tempData = {}
+                let datas = [{
+                    label: '总数',
+                    fill: false,
+                    backgroundColor: window.chartColors.grey,
+                    borderColor: window.chartColors.grey,
+                    data: []
+                },{
+                    label: '老公',
+                    fill: false,
+                    backgroundColor: window.chartColors.blue,
+                    borderColor: window.chartColors.blue,
+                    data: []
+                },{
+                    label: '老婆',
+                    fill: false,
+                    backgroundColor: window.chartColors.red,
+                    borderColor: window.chartColors.red,
+                    data: []
+                }];
+                let labels = [];
+                data.forEach(o => {
+                    if (!tempData[o.YEAR]) {
+                        tempData[o.YEAR] = {
+                            'total': 0,
+                            'boy': 0,
+                            'girl': 0,
+                        }
+                    }
+                    if (o.PAYER === '1') {
+                        tempData[o.YEAR]['boy'] += o.AMOUNT;
+                    }
+                    if (o.PAYER === '0') {
+                        tempData[o.YEAR]['girl'] += o.AMOUNT;
+                    }
+                    tempData[o.YEAR]['total'] += o.AMOUNT;
+                })
+                for (let k in tempData) {
+                    labels.push(k);
+                    let one = tempData[k]
+                    for (let v in one) {
+                        if (v === 'total') {
+                            datas[0].data.push(one[v])
+                        }
+                        if (v === 'boy') {
+                            datas[1].data.push(one[v])
+                        }
+                        if (v === 'girl') {
+                            datas[2].data.push(one[v])
+                        }
+                    }
+                }
+                new Chart(document.getElementById('chart2'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datas
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    suggestedMin: 0,
+                                }
+                            }]
+                        }
+                    }
+                });
+            },
+            buildMonth(data) {
+                let tempData = {}
+                let datas = [{
+                    label: '总数',
+                    fill: false,
+                    backgroundColor: window.chartColors.grey,
+                    borderColor: window.chartColors.grey,
+                    data: []
+                },{
+                    label: '老公',
+                    fill: false,
+                    backgroundColor: window.chartColors.blue,
+                    borderColor: window.chartColors.blue,
+                    data: []
+                },{
+                    label: '老婆',
+                    fill: false,
+                    backgroundColor: window.chartColors.red,
+                    borderColor: window.chartColors.red,
+                    data: []
+                }];
+                let labels = [];
+                data.forEach(o => {
+                    if (!tempData[o.MONTH]) {
+                        tempData[o.MONTH] = {
+                            'total': 0,
+                            'boy': 0,
+                            'girl': 0,
+                        }
+                    }
+                    if (o.PAYER === '1') {
+                        tempData[o.MONTH]['boy'] += o.AMOUNT;
+                    }
+                    if (o.PAYER === '0') {
+                        tempData[o.MONTH]['girl'] += o.AMOUNT;
+                    }
+                    tempData[o.MONTH]['total'] += o.AMOUNT;
+                })
+                for (let k in tempData) {
+                    labels.push(k);
+                    let one = tempData[k]
+                    for (let v in one) {
+                        if (v === 'total') {
+                            datas[0].data.push(one[v])
+                        }
+                        if (v === 'boy') {
+                            datas[1].data.push(one[v])
+                        }
+                        if (v === 'girl') {
+                            datas[2].data.push(one[v])
+                        }
+                    }
+                }
+                new Chart(document.getElementById('chart3'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datas
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    suggestedMin: 0,
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+        },
+        on: {
+            pageBeforeIn: function () {
+                this.stats(this.$route.query)
+            }
+        }
+    }
+</script>

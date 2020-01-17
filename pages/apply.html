@@ -30,9 +30,17 @@
                             <div class="item-inner">
                                 <!-- "item-floating-label" class on item title -->
                                 <div class="item-title item-floating-label">用途</div>
-                                <div class="item-input-wrap">
-                                    <input type="text" name="uses">
-                                    <span class="input-clear-button"></span>
+                                <div class="item-input-wrap input-dropdown-wrap">
+                                    <select name="uses">
+                                        <option>餐饮</option>
+                                        <option>交通</option>
+                                        <option>娱乐</option>
+                                        <option>居家</option>
+                                        <option>孩子</option>
+                                        <option>购物</option>
+                                        <option>医疗</option>
+                                        <option>其他</option>
+                                    </select>
                                 </div>
                             </div>
                         </li>
@@ -40,7 +48,7 @@
                             <div class="item-inner">
                                 <!-- "item-floating-label" class on item title -->
                                 <div class="item-title item-floating-label">支出途径</div>
-                                <div class="item-input-wrap">
+                                <div class="item-input-wrap input-dropdown-wrap">
                                     <select name="spendingPath">
                                         <option>零花钱</option>
                                         <option>生活费</option>
@@ -146,7 +154,8 @@
             pageInit: function () {
                 this.elSpendingTime = app.calendar.create({
                     inputEl: '#spendingTime',
-                    dateFormat: 'yyyy-mm-dd'
+                    dateFormat: 'yyyy-mm-dd',
+                    closeOnSelect: true
                 })
                 this.elSpendingTime.setValue([new Date()]);
             }

@@ -1,3 +1,6 @@
 .calendar-day .calendar-day-number{
     width: auto;
 }
+.card-header{
+    font-weight: bold;
+}

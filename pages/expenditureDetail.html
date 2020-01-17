@@ -1,0 +1,94 @@
+<template>
+    <div class="page">
+        <!-- Fixed/Dynamic Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="if-not-md">返回</span>
+                    </a>
+                </div>
+                <div class="title">支出审批</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="block">
+                <div class="card">
+                    <div class="card-header amount">￥{{item.amount}}</div>
+                    <div class="card-content card-content-padding">
+                        <div class="row">
+                            <div class="col-30">申请时间：</div>
+                            <div class="col-70">{{js "dayjs(this.item.createTime).format('YYYY-MM-DD HH:mm')"}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">用途：</div>
+                            <div class="col-70">{{item.application.uses}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">支出途径：</div>
+                            <div class="col-70">{{item.application.spendingPath}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-30">支出时间：</div>
+                            <div class="col-70">{{js "dayjs(this.item.application.spendingTime).format('YYYY-MM-DD HH:mm')"}}</div>
+                        </div>
+                        {{#js_if "this.item.application.installment > 1"}}
+                        <div class="row">
+                            <div class="col-30">分期：</div>
+                            <div class="col-70">第{{item.installment}}期，共{{item.application.installment}}期</div>
+                        </div>
+                        {{/js_if}}
+                        <div class="row">
+                            <div class="col-30">备注：</div>
+                            <div class="col-70">{{item.memo}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                id: '',
+                item: {
+                    application: {}
+                }
+            }
+        },
+        methods: {
+            fetchDetail() {
+                app.dialog.preloader('载入中...')
+                ajax.post('/bill/detail',{id: this.id}).then(res => {
+                    app.dialog.close()
+                    this.$setState({
+                        item: res.data
+                    })
+                })
+            },
+        },
+        on: {
+            pageMounted: function () {
+                this.$setState({
+                    id: this.$route.query.id
+                })
+                this.fetchDetail()
+            }
+        }
+    }
+</script>
+
+<style>
+    .amount{
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .row{
+        margin-bottom: 10px;
+    }
+</style>

@@ -1,67 +1,66 @@
 <template>
     <div class="page">
-        <!--<div class="navbar">
+        <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner sliding">
-                <div class="left">
-                </div>
-                <div class="title">总览</div>
-            </div>
-        </div>-->
-        <div class="page-content">
-            <div class="card">
-                <div class="card-header">本月已花费</div>
-                <div class="card-content card-content-padding amount">
-                    ￥{{statistics.totalSpend}}
-                </div>
-                <div class="card-footer">
-                    <a href="/detail/">详情</a>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">本月剩余</div>
-                <div class="card-content card-content-padding amount">
-                    <div>家庭生活费剩余：￥{{js "1500 - this.statistics.totalExpensesSpend"}}</div>
-                    <div>老公零花钱剩余：￥{{js "500 - this.statistics.totalPinSpend1"}}</div>
-                    <div>老婆零花钱剩余：￥{{js "500 - this.statistics.totalPinSpend0"}}</div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">待我审批</div>
-                <a href="/approve">
-                    <div class="card-content card-content-padding amount">
-                        {{statistics.totalApprove}} 条
-                    </div>
-                </a>
-            </div>
-            <div class="card">
-                <div class="card-header">我的支出</div>
-                <div class="card-content card-content-padding amount">
-                    2 条
-                </div>
+                <div class="title">存钱买房</div>
             </div>
         </div>
-
-        <div class="fab fab-right-bottom color-red">
-            <a href="#">
-                <!-- Icons For iOS Theme -->
-                <i class="icon f7-icons if-not-md">plus</i>
-                <i class="icon f7-icons if-not-md">xmark</i>
-                <!-- Icons For MD Theme -->
-                <i class="icon material-icons md-only">add</i>
-                <i class="icon material-icons md-only">close</i>
-            </a>
-            <!-- FAB speed dial actions -->
-            <div class="fab-buttons fab-buttons-top">
-                <a href="/apply" class="fab-label-button">
-                    <span><i class="icon f7-icons">money_yen</i></span>
-                    <span class="fab-label">支出申请</span>
-                </a>
-                <a href="/income" class="fab-label-button">
-                    <span><i class="icon f7-icons">creditcard</i></span>
-                    <span class="fab-label">新增收入</span>
-                </a>
+        <div class="page-content ptr-content">
+            <div class="ptr-preloader">
+                <div class="preloader"></div>
+                <div class="ptr-arrow"></div>
             </div>
+                <div style="width: 100%;text-align: center;margin-top: 15px">
+                    <img style="width: 80px" src="{{img}}">
+                </div>
+                <div class="card">
+                    <div class="card-header">本月已花费</div>
+                    <a href="/expenditure"><div class="card-content card-content-padding amount">
+                        ￥{{statistics.totalSpend}}
+                    </div></a>
+                </div>
+                <div class="card">
+                    <div class="card-header">本月剩余</div>
+                    <div class="card-content card-content-padding amount">
+                        <div>家庭生活费剩余：￥{{js "6000 - this.statistics.totalExpensesSpend"}}</div>
+                        <div>老公零花钱剩余：￥{{js "500 - this.statistics.totalPinSpend1"}}</div>
+                        <div>老婆零花钱剩余：￥{{js "500 - this.statistics.totalPinSpend0"}}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">待我审批</div>
+                    <a href="/approve">
+                        <div class="card-content card-content-padding amount">
+                            {{statistics.totalApprove}} 条
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="card-header">我的申请</div>
+                    <a href="/myApply">
+                        <div class="card-content card-content-padding amount">
+                            {{statistics.totalApply}} 条
+                        </div>
+                    </a>
+                </div>
+                <div class="fab fab-right-bottom color-red">
+                    <a href="#">
+                        <i class="fa fa-plus"></i>
+                        <i class="fa fa-close"></i>
+                    </a>
+                    <!-- FAB speed dial actions -->
+                    <div class="fab-buttons fab-buttons-top">
+                        <a href="/apply" class="fab-label-button">
+                            <span><i class="fa fa-hand-paper-o"></i></span>
+                            <span class="fab-label">支出申请</span>
+                        </a>
+                        <a href="/income" class="fab-label-button">
+                            <span><i class="fa fa-yen"></i></span>
+                            <span class="fab-label">新增收入</span>
+                        </a>
+                    </div>
+                </div>
         </div>
     </div>
 </template>
@@ -70,24 +69,34 @@
     return {
         data: function () {
             return {
-                statistics: {}
+                statistics: {},
+                img: 'img/' + localStorage.getItem('role') + '.jpg'
             }
         },
         methods: {
             getStatistics() {
                 app.dialog.preloader('载入中...');
                 ajax.post('/index/statistics').then(res => {
-                    console.log(res)
+                    $('#cover').hide();
+                    $('#content').show();
                     app.dialog.close();
+                    app.ptr.done();
                     this.$setState({
                         statistics: res.data
                     })
                 })
+            },
+            init() {
+                const $ptrContent = $('.ptr-content');
+                $ptrContent.on('ptr:refresh', ()=>{
+                    this.getStatistics()
+                });
             }
         },
         on: {
-            pageInit: function () {
+            pageBeforeIn: function () {
                 this.getStatistics()
+                this.init()
             },
             pageAfterOut: function () {
                 // page has left the view
@@ -102,5 +111,13 @@
     }
     .amount div{
         margin-bottom: 10px;
+    }
+    #cover{
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    #content{
+        display: none;
     }
 </style>

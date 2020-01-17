@@ -57,14 +57,6 @@
                             <div class="col-70">{{item.memo}}</div>
                         </div>
                     </div>
-                    {{#js_if "this.item.approvalStatus == 0"}}
-                    <div class="card-footer">
-                        <div class="row" style="width: 100%">
-                            <button class="col-50 button button-fill color-red" @click="approve(2)">拒绝</button>
-                            <button class="col-50 button button-fill color-green" @click="approve(1)">同意</button>
-                        </div>
-                    </div>
-                    {{/js_if}}
                 </div>
             </div>
         </div>
@@ -88,21 +80,6 @@
                         item: res.data
                     })
                 })
-            },
-            approve(e) {
-                const _this = this
-                const text = e == 1 ? '同意' : '拒绝';
-                app.dialog.confirm('', '确定' + text + '吗？', function () {
-                    app.dialog.progress('正在提交');
-                    ajax.post('/application/update', {approvalStatus: e, id: _this.id}).then(res => {
-                        app.dialog.close();
-                        if (res.code === 200) {
-                            app.dialog.alert('','提交成功', () => {
-                                _this.$router.back()
-                            })
-                        }
-                    })
-                });
             }
         },
         on: {

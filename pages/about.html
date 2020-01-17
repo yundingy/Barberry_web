@@ -20,3 +20,25 @@
         </div>
     </div>
 </template>
+
+<script>
+    return {
+        data: function () {
+            return {
+                statistics: {}
+            }
+        },
+        methods: {
+            getStatistics() {
+            }
+        },
+        on: {
+            pageMounted: function () {
+                this.getStatistics()
+            },
+            pageAfterOut: function () {
+                // page has left the view
+            },
+        }
+    }
+</script>
